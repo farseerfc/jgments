@@ -1,0 +1,80 @@
+<project name="jgments" default="jar">
+  <path id="deps.path">
+    <pathelement location="lib/guava-r07.jar"/>
+    <pathelement location="lib/jsr305.jar"/>
+  </path>
+  <path id="outs.path" path="build/java:build/javatests"/>
+  <path id="junit.path" location="lib/junit-4.8.1.jar"/>
+  <path id="python.path">
+    <pathelement location="lib/pygments-1.2.2-patched"/>
+    <pathelement location="lib/Mako-0.3.4"/>
+    <pathelement location="lib/MarkupSafe-0.11"/>
+  </path>
+
+  <target name="gen"
+          description="Generate Jgments lexers from Pygments source files.">
+    <mkdir dir="build/java"/>
+    <exec executable="java/com/google/jgments/extract.py"
+          failonerror="true">
+      <env key="PYTHONPATH" value="${toString:python.path}"/>
+    </exec>
+  </target>
+
+  <target name="compile" depends="gen">
+    <javac srcdir="java:build/java" destdir="build/java">
+      <classpath>
+        <path refid="deps.path"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile">
+    <jar destfile="jgments.jar" basedir="build/java" includes="**/*.class">
+    </jar>
+  </target>
+
+  <target name="run" depends="compile"
+          description="Run Jgments demo program.">
+    <!-- Copy demonstration source file for RegexLexer main method. -->
+    <copy file="java/com/google/jgments/extract.py"
+          todir="build/java/com/google/jgments"/>
+    <java classname="com.google.jgments.RegexLexer">
+      <classpath>
+        <path refid="deps.path"/>
+        <path refid="outs.path"/>
+      </classpath>
+    </java>
+  </target>
+
+  <target name="test" depends="compile"
+          description="Compile and run Java and Python unit tests.">
+    <mkdir dir="build/javatests"/>
+    <mkdir dir="build/test-output"/>
+    <exec executable="java/com/google/jgments/extract_test.py">
+      <env key="PYTHONPATH" value="${toString:python.path}"/>
+    </exec>
+    <exec executable="java/com/google/jgments/youstillhavetwoproblems_test.py"/>
+    <javac srcdir="javatests" destdir="build/javatests">
+      <classpath>
+        <path refid="deps.path"/>
+        <path refid="outs.path"/>
+        <path refid="junit.path"/>
+      </classpath>
+    </javac>
+    <junit printsummary="yes">
+      <batchtest todir="build/test-output">
+        <fileset dir="javatests"/>
+      </batchtest>
+      <classpath>
+        <path refid="deps.path"/>
+        <path refid="outs.path"/>
+        <path refid="junit.path"/>
+      </classpath>
+      <formatter type="plain"/>
+    </junit>
+  </target>
+
+  <target name="clean">
+    <delete dir="build"/>
+  </target>
+</project>
