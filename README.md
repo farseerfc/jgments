@@ -2,7 +2,7 @@
 
 A fork of Jgments (http://code.google.com/p/jgments/).
 
-Jygments itself is a partial port of Pygments to Java.
+Jgments itself is a partial port of Pygments to Java.
 
 ## Why fork? ##
 
