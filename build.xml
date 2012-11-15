@@ -21,7 +21,7 @@
   </target>
 
   <target name="compile" depends="gen">
-    <javac srcdir="java:build/java" destdir="build/java">
+    <javac srcdir="java:build/java" destdir="build/java" target="1.6" source="1.6">
       <classpath>
         <path refid="deps.path"/>
       </classpath>
